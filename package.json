@@ -1,0 +1,23 @@
+{
+  "name": "atlas-pos",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "desktop/*"
+  ],
+  "scripts": {
+    "dev:web-pos": "npm --workspace apps/web-pos run dev",
+    "dev:backoffice": "npm --workspace apps/backoffice run dev",
+    "dev:desktop": "npm --workspace desktop/electron run dev",
+    "build:web-pos": "npm --workspace apps/web-pos run build",
+    "build:backoffice": "npm --workspace apps/backoffice run build",
+    "build:desktop": "npm --workspace desktop/electron run dist"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.16",
+    "@types/react-dom": "^19.1.9",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  }
+}

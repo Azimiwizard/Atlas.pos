@@ -1,0 +1,40 @@
+        store.code.toLowerCase().includes(term) ||
+        (store.address ?? '').toLowerCase().includes(term)
+      );
+    });
+  }, [stores, search]);
+
+  const columns: DataTableColumn<Store>[] = [
+    { id: 'name', header: 'Name' },
+    { id: 'code', header: 'Code' },
+    {
+      id: 'status',
+      header: 'Status',
+      render: (store) => (
+        <span
+          className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-semibold ${
+            store.is_active ? 'bg-green-100 text-green-800' : 'bg-slate-200 text-slate-600'
+          }`}
+        >
+          {store.is_active ? 'Active' : 'Inactive'}
+        </span>
+      ),
+    },
+    {
+      id: 'address',
+      header: 'Address',
+      render: (store) => store.address ?? '-',
+    },
+    {
+      id: 'phone',
+      header: 'Phone',
+      render: (store) => store.phone ?? '-',
+    },
+    {
+      id: 'actions',
+      header: 'Actions',
+      render: (store) => (
+        <div className="flex flex-wrap gap-2">
+          <Button size="sm" variant="outline" onClick={() => setEditingStore(store)}>
+            Edit
+          </Button>

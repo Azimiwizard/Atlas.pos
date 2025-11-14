@@ -1,0 +1,42 @@
+*** Begin Patch
+*** Update File: api/tests/Feature/Backoffice/FinanceApiTest.php
+@@
+     public function test_finance_health_returns_score_and_signals(): void
+     {
+         [$tenant, $store, $user] = $this->seedFinanceLedger();
+         Sanctum::actingAs($user, ['*'], 'sanctum');
+@@
+             ->whereType('signals', 'array')
+             ->etc());
+     }
++
++    public function test_manager_cannot_access_other_store_finance(): void
++    {
++        $tenant = Tenant::factory()->create(['slug' => 'store-scope']);
++        $storeA = Store::factory()->create(['tenant_id' => $tenant->id]);
++        $storeB = Store::factory()->create(['tenant_id' => $tenant->id]);
++
++        $manager = User::factory()->create([
++            'tenant_id' => $tenant->id,
++            'role' => 'manager',
++            'store_id' => $storeA->id,
++        ]);
++
++        Sanctum::actingAs($manager, ['*'], 'sanctum');
++
++        $query = http_build_query([
++            'date_from' => '2025-01-01',
++            'date_to' => '2025-01-10',
++            'currency' => 'USD',
++            'store_id' => $storeB->id,
++            'tz' => 'Africa/Casablanca',
++        ]);
++
++        $response = $this->withHeaders([
++            'X-Tenant' => $tenant->slug,
++            'X-Store' => $storeA->id,
++        ])->getJson('/api/bo/finance/summary?'.$query);
++
++        $response->assertForbidden();
++    }
+*** End Patch

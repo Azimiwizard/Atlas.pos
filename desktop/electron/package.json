@@ -1,0 +1,94 @@
+{
+  "name": "atlas-pos-desktop",
+  "version": "0.1.0",
+  "description": "Electron shell for Atlas POS",
+  "private": true,
+  "main": "dist/main/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "clean": "rimraf dist release",
+    "compile": "tsc -p tsconfig.json",
+    "compile:watch": "tsc -p tsconfig.json --watch",
+    "copy:web": "node scripts/copy-web.js",
+    "dev": "npm run compile && concurrently -k -s first \"npm --workspace ../../apps/web-pos run dev\" \"npm run dev:electron\"",
+    "dev:electron": "concurrently -k \"npm run compile:watch\" \"wait-on tcp:5173 && cross-env NODE_ENV=development electronmon . --watch dist\"",
+    "build": "npm run clean && npm --workspace ../../apps/web-pos run build && npm run compile && npm run copy:web",
+    "dist": "npm run build && electron-builder",
+    "start": "electron ."
+  },
+  "dependencies": {
+    "dayjs": "^1.11.13",
+    "electron-log": "^5.1.4",
+    "electron-updater": "^6.4.7",
+    "escpos": "^3.0.0-alpha.6",
+    "escpos-usb": "^3.0.0-alpha.4",
+    "keytar": "^7.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.16.5",
+    "concurrently": "^9.1.0",
+    "cross-env": "^7.0.3",
+    "electron": "^31.5.1",
+    "electron-builder": "^25.1.8",
+    "electronmon": "^2.0.4",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.9.3",
+    "wait-on": "^7.2.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "build": {
+    "appId": "com.atlas.pos.desktop",
+    "productName": "Atlas POS",
+    "directories": {
+      "buildResources": "build",
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "dist/web",
+        "to": "web"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "${productName}-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "category": "public.app-category.business",
+      "hardenedRuntime": true,
+      "entitlements": "build/entitlements.mac.plist"
+    },
+    "dmg": {
+      "artifactName": "${productName}-${version}.${ext}"
+    },
+    "publish": [
+      {
+        "provider": "generic",
+        "url": "https://updates.atlas-pos.local/desktop"
+      }
+    ]
+  }
+}
